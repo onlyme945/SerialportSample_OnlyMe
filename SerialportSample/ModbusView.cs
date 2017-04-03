@@ -17,17 +17,19 @@ namespace SerialportSample
         [DllImport("user32.dll")]
         public static extern bool ShowCaret(IntPtr hWnd);//显示textbox的光标
 
-        private TextBox textBox1;
-        private ModbusRTU modbus1=new ModbusRTU();
+        private TextBox ModbusTextBox;
         private System.Timers.Timer PeriodicRequestTimer =new System.Timers.Timer();
 
         #region"/////////////////////自定义的属性///////////////////"
-        private int _MyModbusIndex;
-        private byte _StationID;
-        private UInt16 _WriteAddress;
-        private UInt16 _ReadAddress;
+        private int _MyModbusIndex=-1;
+        private byte _StationID=1;
+        private UInt16 _WriteAddress=1;
+        private UInt16 _ReadAddress=1;
+        private double _MaxValue = 0;
+        private double _MinValue = 100;
         private WriteFunctionCodeEnum _WriteFunctionCode = WriteFunctionCodeEnum.WriteCoils;
         private ReadFunctionCodeEnum _ReadFunctionCode = ReadFunctionCodeEnum.ReadCoils;
+        private CommDataTypeEnum _CommDataType = CommDataTypeEnum.SignedByte;
 
         [Category("ModbusRTU"), Description("查询周期")]
         public double RequestPeriod
@@ -115,7 +117,7 @@ namespace SerialportSample
         }
 
         [Category("ModbusRTU"), Description("写指令（功能码）")]
-        public WriteFunctionCodeEnum WriyeFuncCode
+        public WriteFunctionCodeEnum WriteFuncCode
         {
             get
             {
@@ -137,6 +139,51 @@ namespace SerialportSample
                 return _MyModbusIndex;
             }
         }
+        [Category("ModbusRTU"), Description("输入上限值（MaxValue）")]
+        public double MaxValue
+        {
+            get
+            {
+                return _MaxValue;
+            }
+
+            set
+            {               
+                _MaxValue = value;
+                if (value < _MinValue) _MaxValue = _MinValue;
+            }
+        }
+
+        [Category("ModbusRTU"), Description("输入下限值（MinValue）")]
+        public double MinValue
+        {
+            get
+            {
+                return _MinValue;
+            }
+
+            set
+            {
+                _MinValue = value;
+                if (value > _MaxValue) _MinValue = _MaxValue;
+            }
+        }
+
+        [Category("ModbusRTU"), Description("读取/写入 数据类型")]
+        public CommDataTypeEnum CommDataType
+        {
+            get
+            {
+                return _CommDataType;
+
+            }
+
+            set
+            {
+                _CommDataType = value;
+
+            }
+        }
 
 
         #endregion
@@ -145,47 +192,52 @@ namespace SerialportSample
         {
             PeriodicRequestTimer.Elapsed += PeriodicRequestTimer_Elapsed;
             _MyModbusIndex=ModbusRTU.GetMyModbusIndex();//初始化控件时获得自己的Modbus索引值  重中之重
-
+            ModbusRTU.SetDataStorage();//每次新增一个使用Modbus功能的控件，就必须让控件自己调用ModbusRTU的这个方法以建立属于控件自己的数据和flag存储单元
         }
 
         private void PeriodicRequestTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            
-            modbus1.ControlName=this.Name;
-            modbus1.RequestADU_ReadCoils(StationID,ReadAddress,1);
-            Console.Write("1s---");
+            ModbusRTU.AssembleRequestADU(_MyModbusIndex,false,_StationID,(byte)ReadFuncCode,ReadAddress,1,null);
+            if (ModbusRTU.GetDataStorageFlag(_MyModbusIndex) == false)
+                this.Invoke(new EventHandler(delegate 
+            {
+                this.Text = _CommDataType.ToString();
+            }));         
+
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-          
             base.OnMouseDown(e);
             ShowCaret(this.Handle);
-            Console.Write("OnMouseDown!");
-
         }
 
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             base.OnKeyPress(e);
 
-            if (e.KeyChar == (char)Keys.Enter)
-                HideCaret(this.Handle);
+            //byte[] DataToTx;
 
-            Console.Write("OnKeyPress!");
+            //if (e.KeyChar == (char)Keys.Enter)
+            //{
+            //    HideCaret(this.Handle);
+            //    ModbusRTU.AssembleRequestADU(_MyModbusIndex, true, 1, (byte)WriteFuncCode, WriteAddress, 1, null);
+
+            //}
+
         }
       
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.ModbusTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // textBox1
+            // ModbusTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(0, 0);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 21);
-            this.textBox1.TabIndex = 0;
+            this.ModbusTextBox.Location = new System.Drawing.Point(0, 0);
+            this.ModbusTextBox.Name = "ModbusTextBox";
+            this.ModbusTextBox.Size = new System.Drawing.Size(100, 21);
+            this.ModbusTextBox.TabIndex = 0;
             this.ResumeLayout(false);
 
         }
@@ -215,6 +267,18 @@ namespace SerialportSample
             [Description("写寄存器")]
             WriteRegs = 0x10
 
+        }
+
+        public enum CommDataTypeEnum
+        {
+            SignedByte=1,
+            UnsignedByte=2,
+            SignedWord=3,
+            UnsignedWord=4,
+            SignedInt32=5,
+            UnsignedInt32=6,
+            SingleFloat=7,
+            DoubleFloat=8
         }
         #endregion
        
