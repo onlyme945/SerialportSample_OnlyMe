@@ -46,7 +46,6 @@
             this.modbusView1 = new SerialportSample.ModbusView();
             this.modbusRTU1 = new SerialportSample.ModbusRTU();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.testcomponent1 = new SerialportSample.testcomponent(this.components);
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -277,15 +276,7 @@
             this.modbusRTU1.DepthOfFIFO = ((ushort)(500));
             this.modbusRTU1.IsMaster = true;
             this.modbusRTU1.RxTimerInterval = 10D;
-            // 
-            // testcomponent1
-            // 
-            this.testcomponent1.ACKTimerInterval = 50D;
-            this.testcomponent1.BroadcastTimerInterval = 200D;
-            this.testcomponent1.DepthOfFIFO = ((ushort)(500));
-            this.testcomponent1.IsMaster = true;
-            this.testcomponent1.RxTimerInterval = 10D;
-            // 
+            //    
             // SerialportSampleForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -334,7 +325,6 @@
         private ModbusView modbusView6;
         private System.Windows.Forms.Timer timer1;
         private ModbusRTU modbusRTU1;
-        private testcomponent testcomponent1;
     }
 }
 
