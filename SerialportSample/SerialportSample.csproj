@@ -56,12 +56,6 @@
     <Compile Include="ModbusRTU.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ModbusTxtBoxUserControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ModbusTxtBoxUserControl.Designer.cs">
-      <DependentUpon>ModbusTxtBoxUserControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="ModbusView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -69,9 +63,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ModbusTxtBoxUserControl.resx">
-      <DependentUpon>ModbusTxtBoxUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ModbusView.resx">
       <DependentUpon>ModbusView.cs</DependentUpon>
